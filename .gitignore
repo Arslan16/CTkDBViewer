@@ -1,4 +1,4 @@
 venv
 win_venv
 .idea
-__pycahce__
+__pycache__

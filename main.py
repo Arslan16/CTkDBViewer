@@ -18,7 +18,9 @@ class WindowsManager:
         self.start_screen_frame.show_screen()
 
     def show_main_window(self):
-        ...
+        self.main_frame.clear_frame()
+        self.main_frame.set_grid_configure()
+        self.main_frame.show_screen()
 
     def show_table_window(self):
         ...
@@ -43,13 +45,15 @@ class App(ctk_tk.CTk):
         self.grid_rowconfigure(0, minsize=self.height)
         self.screen.grid(column=0, row=0, sticky="nswe")
         self._set_appearance_mode("dark")
-        self.windows_manager.start_screen_frame.entry_btn["command"] = self.autentificate
         self.windows_manager.show_start_window()
+        self.windows_manager.start_screen_frame.entry_btn.bind("<Button-1>", self.autentificate)
+        print("aa")
 
-    def autentificate(self):
+    def autentificate(self, event=None):
         login = self.windows_manager.start_screen_frame.db_input.get()
         password = self.windows_manager.start_screen_frame.password_input.get()
         if login == "Arslan" and password == "TestPassword":
+            print("auth complete")
             self.windows_manager.show_main_window()
         else:
             self.show_warning()
@@ -58,15 +62,13 @@ class App(ctk_tk.CTk):
         self.win = CTkToplevel(self)
         self.win.title("Внимание!")
         self.win.geometry("300x150")
-        self.warning_label = CTkLabel(self.win, text="Неверный логин или пароль!")
+        self.win.grid_columnconfigure(0, minsize=300)
+        self.win.rowconfigure(0, minsize=150)
+        self.warning_label = CTkLabel(self.win, font=self.BASE_FONT_SETTINGS, text="Неверный логин или пароль!")
         self.warning_label.grid(row=0, column=0, sticky='nswe')
-
-
 
 
 if __name__ == "__main__":
     Base.metadata.create_all
     app = App(500, 500)
     app.mainloop()
-
-
