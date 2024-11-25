@@ -74,7 +74,7 @@ class TableScreenFrame(ScreenFrame):
         rows = [0.1, 0.9]
         columns = [1]
         for row_ind in range(len(rows)):
-            self.frame.grid_rowconfigure(row_ind, minsize=1, pad=1, weight=100)
+            self.frame.grid_rowconfigure(row_ind, minsize=self.height*rows[row_ind], pad=1, weight=100)
 
         for col_ind in range(len(columns)):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
@@ -82,16 +82,15 @@ class TableScreenFrame(ScreenFrame):
 
     def show_screen(self):
         # Canvas для прокрутки
-        self.create_button = CTkButton(self.frame, text="Создать", width=self.width)
-        self.create_button.grid(row=0, column=0, sticky="se")
+        self.create_button = CTkButton(self.frame, text="Создать")
+        self.create_button.grid(row=0, column=0, sticky="nswe")
 
-        # self.create1_button = CTkButton(self.frame, text="Создать")
-        # self.create1_button.grid(row=0, column=1, sticky="se")
-
-        self.canvas_frame = CTkFrame(self.frame)
+        self.canvas_frame = CTkFrame(self.frame, width=self.width, bg_color=BASE_BACKGROUND_COLOR)
         self.canvas_frame.grid(column=0, row=1, sticky="nswe")
-        canvas = tk.Canvas(self.canvas_frame, highlightthickness=0)
+        canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
         canvas.grid(row=0, column=0, sticky="nsew")
+        self.canvas_frame.grid_columnconfigure(0, minsize=self.width, weight=100)
+        self.canvas_frame.grid_rowconfigure(0, minsize=self.height, weight=100)
 
         # Скроллбары
         v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=canvas.yview)
@@ -108,12 +107,12 @@ class TableScreenFrame(ScreenFrame):
         canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
 
         # Добавляем таблицу в прокручиваемый фрейм
-        table = CTkTable(scrollable_frame, row=25, column=20)
-        table.grid(column=0, row=0)
+        table = CTkTable(scrollable_frame, row=1, column=5)
+        table.grid(column=0, row=0, sticky="nswe")
 
         # Добавляем кнопку в конкретную ячейку
-        button = CTkButton(table.inside_frame, text="Hi")
-        button.grid(row=1, column=1)
+        # button = CTkButton(table.inside_frame, text="Hi")
+        # button.grid(row=1, column=1)
 
         # Настройка динамического изменения области прокрутки
         def update_scroll_region(event):

@@ -47,9 +47,8 @@ class App(ctk_tk.CTk):
         self.grid_rowconfigure(0, minsize=self.height)
         self.screen.grid(column=0, row=0, sticky="nswe")
         self._set_appearance_mode("dark")
-        self.windows_manager.show_table_window()
-        #self.windows_manager.start_screen_frame.entry_btn.bind("<Button-1>", self.autentificate)
-        #print("aa")
+        self.windows_manager.show_start_window()
+        self.windows_manager.start_screen_frame.entry_btn.bind("<Button-1>", self.autentificate)
 
     def autentificate(self, event=None):
         login = self.windows_manager.start_screen_frame.db_input.get()
