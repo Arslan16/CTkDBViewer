@@ -1,9 +1,10 @@
 import tkinter as tk
 from customtkinter import *
-from admin import *
-from models import *
 from CTkTable import CTkTable
 
+from admin import *
+from models import *
+from utils import *
 
 class ScreenFrame:
     def __init__(self, width, height, frame: CTkFrame):
@@ -19,6 +20,8 @@ class ScreenFrame:
 
 
 class MainScreenFrame(ScreenFrame):
+    l_btns = list()
+
     def set_grid_configure(self):
         rows = [0.2, 0.8]
         columns = [1]
@@ -34,9 +37,11 @@ class MainScreenFrame(ScreenFrame):
         tables_frame = CTkScrollableFrame(self.frame)
         tables_frame.columnconfigure(0, minsize=self.width, weight=1000)
         tables_frame.grid(column=0, row=1, sticky="nswe")
-        for model_ind in range(len(l_models)):
-            CTkButton(tables_frame, font=self.BASE_FONT_SETTINGS, text=l_models[model_ind].__tablename__).grid(row=model_ind, column=0, sticky="we")
-
+        for model_ind in range(len(dict_models.keys())):
+            btn = CTkButton(tables_frame, font=self.BASE_FONT_SETTINGS, 
+                      text=list(dict_models.keys())[model_ind])
+            btn.grid(row=model_ind, column=0, sticky="we")
+            self.l_btns.append(btn)
 
 class LoginScreenFrame(ScreenFrame):
     def __init__(self, *args, **kwargs):
@@ -57,7 +62,7 @@ class LoginScreenFrame(ScreenFrame):
         self.db_input = CTkEntry(self.frame, bg_color=BASE_BACKGROUND_COLOR)
         self.password_input = CTkEntry(self.frame, bg_color=BASE_BACKGROUND_COLOR)
         self.entry_btn = CTkButton(self.frame, text="Войти", bg_color=BASE_BACKGROUND_COLOR, font=self.BASE_FONT_SETTINGS)
-
+        
         self.db_input.insert(0, "Arslan")
         self.password_input.insert(0, "TestPassword")
 
@@ -67,7 +72,6 @@ class LoginScreenFrame(ScreenFrame):
         self.password_input.grid(row=4, column=0, sticky='we', padx=120)
         self.entry_btn.grid(row=5, column=0, pady=100)
         
-    
 
 class TableScreenFrame(ScreenFrame):
     def set_grid_configure(self):
@@ -80,35 +84,35 @@ class TableScreenFrame(ScreenFrame):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
 
 
-    def show_screen(self):
+    def show_screen(self, model: Model):
         # Canvas для прокрутки
         self.create_button = CTkButton(self.frame, text="Создать")
         self.create_button.grid(row=0, column=0, sticky="nswe")
 
         self.canvas_frame = CTkFrame(self.frame, width=self.width, bg_color=BASE_BACKGROUND_COLOR)
         self.canvas_frame.grid(column=0, row=1, sticky="nswe")
-        canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
-        canvas.grid(row=0, column=0, sticky="nsew")
+        self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
         self.canvas_frame.grid_columnconfigure(0, minsize=self.width, weight=100)
         self.canvas_frame.grid_rowconfigure(0, minsize=self.height, weight=100)
 
         # Скроллбары
-        v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=canvas.yview)
-        v_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=self.canvas.yview)
+        self.v_scrollbar.grid(row=0, column=1, sticky="ns")
 
-        h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=canvas.xview)
+        h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=self.canvas.xview)
         h_scrollbar.grid(row=1, column=0, sticky="ew")
 
         # Привязка скроллбаров к Canvas
-        canvas.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=h_scrollbar.set)
 
         # Создаем фрейм внутри Canvas
-        scrollable_frame = CTkFrame(canvas)
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
+        scrollable_frame = CTkFrame(self.canvas)
+        self.canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
 
         # Добавляем таблицу в прокручиваемый фрейм
-        table = CTkTable(scrollable_frame, row=1, column=5)
-        table.grid(column=0, row=0, sticky="nswe")
+        self.table = CTkTable(scrollable_frame, row=1, column=len(model.__table__.columns))
+        self.table.grid(column=0, row=0, sticky="nswe")
 
         # Добавляем кнопку в конкретную ячейку
         # button = CTkButton(table.inside_frame, text="Hi")
@@ -116,24 +120,19 @@ class TableScreenFrame(ScreenFrame):
 
         # Настройка динамического изменения области прокрутки
         def update_scroll_region(event):
-            canvas.configure(scrollregion=canvas.bbox("all"))
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
         scrollable_frame.bind("<Configure>", update_scroll_region)
 
         # Настройка масштабирования при изменении размеров окна
         self.frame.grid_rowconfigure(0, weight=1)
         self.frame.grid_columnconfigure(0, weight=1)
+        self.feel_table(model)
 
-
-
-
-
-
-
-
-
-
-
-
-
+    def feel_table(self, v_in_model):
+        headers = [column.name for column in v_in_model.__table__.columns]
+        #l_tuples = get_data_from_table(v_in_model) 
+        self.table.add_row(headers)
+        for i in range(len(headers)):
+            self.table.insert(row=self.table.rows+1, column=i, value=headers[i])
 

@@ -22,10 +22,10 @@ class WindowsManager:
         self.main_frame.set_grid_configure()
         self.main_frame.show_screen()
 
-    def show_table_window(self):
+    def show_table_window(self, a):
         self.table_frame.clear_frame()
         self.table_frame.set_grid_configure()
-        self.table_frame.show_screen()
+        self.table_frame.show_screen(a)
 
 
 class App(ctk_tk.CTk):
@@ -43,6 +43,7 @@ class App(ctk_tk.CTk):
         self.columnconfigure(0, minsize=self.width, weight=self.width)
         self.rowconfigure(0, minsize=self.height, weight=self.height)
         self.geometry(f"{self.width}x{self.height}")
+        self.resizable(False, False)
         self.grid_columnconfigure(0, minsize=self.width)
         self.grid_rowconfigure(0, minsize=self.height)
         self.screen.grid(column=0, row=0, sticky="nswe")
@@ -54,8 +55,9 @@ class App(ctk_tk.CTk):
         login = self.windows_manager.start_screen_frame.db_input.get()
         password = self.windows_manager.start_screen_frame.password_input.get()
         if login == "Arslan" and password == "TestPassword":
-            print("auth complete")
             self.windows_manager.show_main_window()
+            for btn in self.windows_manager.main_frame.l_btns:
+                btn.bind("<Button-1>", lambda e: self.windows_manager.table_frame.show_screen(dict_models.get(btn._text)))
         else:
             self.show_warning()
             

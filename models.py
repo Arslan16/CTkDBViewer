@@ -4,22 +4,27 @@ from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
+
+class Model:
+    pass
+
+
 # Таблица t_commands
-class Command(Base):
+class Command(Model, Base):
     __tablename__ = "t_commands"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(50), unique=True, nullable=False)
 
 
 # Таблица t_technical_tasks
-class TechnicalTask(Base):
+class TechnicalTask(Model, Base):
     __tablename__ = "t_technical_tasks"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     description = Column(VARBINARY)
 
 
 # Таблица t_customers
-class Customer(Base):
+class Customer(Model, Base):
     __tablename__ = "t_customers"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     law_face = Column(String(100), unique=True, nullable=False)
@@ -29,7 +34,7 @@ class Customer(Base):
 
 
 # Таблица t_orders
-class Order(Base):
+class Order(Model, Base):
     __tablename__ = "t_orders"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     id_customer = Column(BigInteger, ForeignKey("t_customers.id"), nullable=False)
@@ -42,7 +47,7 @@ class Order(Base):
 
 
 # Таблица t_employees
-class Employee(Base):
+class Employee(Model, Base):
     __tablename__ = "t_employees"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     surname = Column(String(50), nullable=False)
@@ -56,7 +61,7 @@ class Employee(Base):
 
 
 # Таблица t_expenses_items
-class ExpensesItem(Base):
+class ExpensesItem(Model, Base):
     __tablename__ = "t_expenses_items"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
@@ -64,7 +69,7 @@ class ExpensesItem(Base):
 
 
 # Таблица t_expenses
-class Expense(Base):
+class Expense(Model, Base):
     __tablename__ = "t_expenses"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     date = Column(Date, nullable=False)
@@ -74,7 +79,7 @@ class Expense(Base):
 
 
 # Таблица t_profit_items
-class ProfitItem(Base):
+class ProfitItem(Model, Base):
     __tablename__ = "t_profit_items"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
@@ -82,7 +87,7 @@ class ProfitItem(Base):
 
 
 # Таблица t_profits
-class Profit(Base):
+class Profit(Model, Base):
     __tablename__ = "t_profits"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     date = Column(Date, nullable=False)
@@ -93,7 +98,7 @@ class Profit(Base):
 
 
 # Таблица t_applicants
-class Applicant(Base):
+class Applicant(Model, Base):
     __tablename__ = "t_applicants"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     surname = Column(String(50), nullable=False)
@@ -103,7 +108,7 @@ class Applicant(Base):
 
 
 # Таблица t_testing_result
-class TestingResult(Base):
+class TestingResult(Model, Base):
     __tablename__ = "t_testing_result"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     applicant_id = Column(BigInteger, ForeignKey("t_applicants.id"), nullable=False)
@@ -113,7 +118,7 @@ class TestingResult(Base):
 
 
 # Таблица t_testing_questions
-class TestingQuestion(Base):
+class TestingQuestion(Model, Base):
     __tablename__ = "t_testing_questions"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     question_number = Column(BigInteger, nullable=False)
@@ -123,7 +128,7 @@ class TestingQuestion(Base):
 
 
 # Таблица t_answers
-class Answer(Base):
+class Answer(Model, Base):
     __tablename__ = "t_answers"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     question_number = Column(BigInteger, nullable=False)
@@ -133,7 +138,7 @@ class Answer(Base):
 
 
 # Таблица t_interview
-class Interview(Base):
+class Interview(Model, Base):
     __tablename__ = "t_interview"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     applicant_id = Column(BigInteger, ForeignKey("t_applicants.id"), nullable=False)
@@ -143,7 +148,7 @@ class Interview(Base):
 
 
 # Таблица t_files
-class File(Base):
+class File(Model, Base):
     __tablename__ = "t_files"
     id = Column(BigInteger, primary_key=True, autoincrement=True)
     file_name = Column(String(100), nullable=False)
@@ -152,7 +157,11 @@ class File(Base):
     life_time = Column(Date, nullable=False)
 
 
-l_models = [Command, TechnicalTask, Customer, Order, Employee,
-            ExpensesItem, Expense, ProfitItem, Profit, Applicant, 
-            TestingResult, TestingQuestion, Answer, Interview, File
-]
+dict_models = {
+    Command.__tablename__: Command, TechnicalTask.__tablename__ : TechnicalTask,
+    Customer.__tablename__: Customer, Order.__tablename__:Order, Employee.__tablename__: Employee,
+    ExpensesItem.__tablename__:ExpensesItem, Expense.__tablename__: Expense, ProfitItem.__tablename__: ProfitItem,
+    Profit.__tablename__: Profit, Applicant.__tablename__:Applicant, TestingResult.__tablename__: TestingResult,
+    TestingQuestion.__tablename__:TestingQuestion, Answer.__tablename__:Answer, Interview.__tablename__: Interview,
+    File.__tablename__: File
+}
