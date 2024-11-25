@@ -43,8 +43,7 @@ table = CTkTable(scrollable_frame, row=1, column=len(Employee.__table__.columns)
 table.grid(column=0, row=0, sticky="nswe")
 
 # Добавляем кнопку в конкретную ячейку
-# button = CTkButton(table.inside_frame, text="Hi")
-# button.grid(row=1, column=1)
+
 
 # Настройка динамического изменения области прокрутки
 def update_scroll_region(event):
@@ -56,20 +55,20 @@ scrollable_frame.bind("<Configure>", update_scroll_region)
 frame.grid_rowconfigure(0, weight=1)
 frame.grid_columnconfigure(0, weight=1)
 
-
+def on_row_click(self, row_data):
+        print(f"Clicked on row: {row_data}")
 headers = [column.name for column in Employee.__table__.columns]
 l_tuples = get_data_from_table(Employee) 
 for i in range(len(headers)):
     table.insert(row=table.rows-1, column=i, value=headers[i])
 for dict_tpl in l_tuples:
     table.add_row([])
-    row = table.select_row(table.rows-1)
-    row.bind("<Enter>", lambda e: row.configure(bg="lightblue"))
-    row.bind("<Leave>", lambda e: row.configure(bg="white"))
-    row.bind("<Button-1>", lambda e, row_data=dict_tpl: self.on_row_click(row_data))
-        def on_row_click(self, row_data):
-        print(f"Clicked on row: {row_data}")
-    for i in range(len(dict_tpl.keys())):
-        table.insert(row=table.rows-1, column=i, value=list(dict_tpl.values())[i])    
+    # row = table.select_row(table.rows-1)
+    # row.bind("<Enter>", lambda e: row.configure(bg="lightblue"))
+    # row.bind("<Leave>", lambda e: row.configure(bg="white"))
+    # row.bind("<Button-1>", lambda e, row_data=dict_tpl: on_row_click(row_data))
+
+    # for i in range(len(dict_tpl.keys())):
+    #     table.insert(row=table.rows-1, column=i, value=list(dict_tpl.values())[i])    
     
 root.mainloop()

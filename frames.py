@@ -1,6 +1,7 @@
 import tkinter as tk
 from customtkinter import *
 from CTkTable import CTkTable
+from PIL.Image import Image
 
 from admin import *
 from models import *
@@ -102,25 +103,26 @@ class TableScreenFrame(ScreenFrame):
         self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
         self.canvas.grid(row=0, column=0, sticky="nsew")
         self.canvas_frame.grid_columnconfigure(0, minsize=self.width, weight=100)
-        self.canvas_frame.grid_rowconfigure(0, minsize=self.height, weight=100)
+        self.canvas_frame.grid_rowconfigure(0, minsize=self.height)
+        self.canvas_frame.grid_rowconfigure(1, minsize=40, weight=100)
 
         # Скроллбары
         self.v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=self.canvas.yview)
         self.v_scrollbar.grid(row=0, column=1, sticky="ns")
 
-        h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=self.canvas.xview)
-        h_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=self.canvas.xview)
+        self.h_scrollbar.grid(row=1, column=0, sticky="ew", ipady=10)
 
         # Привязка скроллбаров к Canvas
-        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set)
 
         # Создаем фрейм внутри Canvas
-        scrollable_frame = CTkFrame(self.canvas)
+        scrollable_frame = CTkFrame(self.canvas_frame, height=self.height*0.6)
         self.canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
 
         # Добавляем таблицу в прокручиваемый фрейм
         self.table = CTkTable(scrollable_frame, row=1, column=len(model.__table__.columns)+1)
-        self.table.grid(column=0, row=0, sticky="nswe")
+        self.table.grid(column=0, row=0, sticky="nswe", pady=10)
 
         # Добавляем кнопку в конкретную ячейку
         # button = CTkButton(table.inside_frame, text="Hi")
@@ -134,20 +136,23 @@ class TableScreenFrame(ScreenFrame):
         self.feel_table(model)
 
     def feel_table(self, v_in_model):
-        #image = CTkImage()
+        image = tk.PhotoImage("edit.png")
         headers = [column.name for column in v_in_model.__table__.columns]
-        headers.insert(0, "")
+        headers.insert(0, "R:")
         l_tuples = get_data_from_table(v_in_model) 
         for i in range(len(headers)):
             self.table.insert(row=self.table.rows-1, column=i, value=headers[i])
-        
-        for dict_tpl in l_tuples:
+        #self.table.add_row([])
+        #self.btn = CTkButton(self.table.inside_frame, text="Подробнее")
+        #self.btn.grid(column=0, row=1, sticky="nswe")
+        for dict_tpl in l_tuples[:3]:
             self.table.add_row([])  # Добавляем новую строку
             current_row_index = self.table.rows - 1
-            CTkButton(self.table.inside_frame, text="R").grid(column=0, row=current_row_index, sticky="nswe")
+            self.btn = CTkButton(self.table.inside_frame, text="Подробнее")
+            self.btn.grid(column=0, row=current_row_index, sticky="nswe")
 
             for i in range(len(dict_tpl.keys())):
-                self.table.insert(row=current_row_index, column=i+1, value=list(dict_tpl.values())[i])
+               self.table.insert(row=current_row_index, column=i+1, value=list(dict_tpl.values())[i])
 
             # Привязываем обработчики событий для каждой строки
             row_frame = self.table.inside_frame.winfo_children()[current_row_index]
