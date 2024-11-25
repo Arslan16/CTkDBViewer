@@ -22,10 +22,11 @@ class WindowsManager:
         self.main_frame.set_grid_configure()
         self.main_frame.show_screen()
 
-    def show_table_window(self, a):
+    def show_table_window(self, model):
+        print(f"main.py {model=}")
         self.table_frame.clear_frame()
         self.table_frame.set_grid_configure()
-        self.table_frame.show_screen(a)
+        self.table_frame.show_screen(model)
 
 
 class App(ctk_tk.CTk):
@@ -57,7 +58,8 @@ class App(ctk_tk.CTk):
         if login == "Arslan" and password == "TestPassword":
             self.windows_manager.show_main_window()
             for btn in self.windows_manager.main_frame.l_btns:
-                btn.bind("<Button-1>", lambda e: self.windows_manager.table_frame.show_screen(dict_models.get(btn._text)))
+                model = dict_models.get(btn.cget("text"))
+                btn.bind("<Button-1>", lambda e, m=model: self.windows_manager.table_frame.show_screen(m))
         else:
             self.show_warning()
             
@@ -73,5 +75,5 @@ class App(ctk_tk.CTk):
 
 if __name__ == "__main__":
     Base.metadata.create_all
-    app = App(500, 500)
+    app = App(1000, 500)
     app.mainloop()

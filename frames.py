@@ -89,6 +89,10 @@ class TableScreenFrame(ScreenFrame):
         self.create_button = CTkButton(self.frame, text="Создать")
         self.create_button.grid(row=0, column=0, sticky="nswe")
 
+        self.back_button = CTkButton(self.frame, text="Назад к списку")
+        self.back_button.grid(row=0, column=0, sticky="nswe")
+
+
         self.canvas_frame = CTkFrame(self.frame, width=self.width, bg_color=BASE_BACKGROUND_COLOR)
         self.canvas_frame.grid(column=0, row=1, sticky="nswe")
         self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
@@ -131,8 +135,13 @@ class TableScreenFrame(ScreenFrame):
 
     def feel_table(self, v_in_model):
         headers = [column.name for column in v_in_model.__table__.columns]
-        #l_tuples = get_data_from_table(v_in_model) 
-        self.table.add_row(headers)
-        # for i in range(len(headers)):
-        #     self.table.insert(row=self.table.rows+1, column=i, value=headers[i])
-
+        print(v_in_model)
+        l_tuples = get_data_from_table(v_in_model) 
+        print(l_tuples)
+        for i in range(len(headers)):
+            self.table.insert(row=self.table.rows-1, column=i, value=headers[i])
+        for dict_tpl in l_tuples:
+            self.table.add_row([])
+            for i in range(len(dict_tpl.keys())):
+                self.table.insert(row=self.table.rows-1, column=i, value=list(dict_tpl.values())[i])    
+            

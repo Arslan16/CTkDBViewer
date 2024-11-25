@@ -161,7 +161,6 @@ dict_models = {
     Command.__tablename__: Command, TechnicalTask.__tablename__ : TechnicalTask,
     Customer.__tablename__: Customer, Order.__tablename__:Order, Employee.__tablename__: Employee,
     ExpensesItem.__tablename__:ExpensesItem, Expense.__tablename__: Expense, ProfitItem.__tablename__: ProfitItem,
-    Profit.__tablename__: Profit, Applicant.__tablename__:Applicant, TestingResult.__tablename__: TestingResult,
-    TestingQuestion.__tablename__:TestingQuestion, Answer.__tablename__:Answer, Interview.__tablename__: Interview,
-    File.__tablename__: File
+    Profit.__tablename__: Profit, File.__tablename__: File, Applicant.__tablename__:Applicant, TestingResult.__tablename__: TestingResult,
+    TestingQuestion.__tablename__:TestingQuestion, Answer.__tablename__:Answer, Interview.__tablename__: Interview
 }
