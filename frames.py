@@ -133,6 +133,6 @@ class TableScreenFrame(ScreenFrame):
         headers = [column.name for column in v_in_model.__table__.columns]
         #l_tuples = get_data_from_table(v_in_model) 
         self.table.add_row(headers)
-        for i in range(len(headers)):
-            self.table.insert(row=self.table.rows+1, column=i, value=headers[i])
+        # for i in range(len(headers)):
+        #     self.table.insert(row=self.table.rows+1, column=i, value=headers[i])
 
