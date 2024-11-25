@@ -23,7 +23,9 @@ class WindowsManager:
         self.main_frame.show_screen()
 
     def show_table_window(self):
-        ...
+        self.table_frame.clear_frame()
+        self.table_frame.set_grid_configure()
+        self.table_frame.show_screen()
 
 
 class App(ctk_tk.CTk):
@@ -45,9 +47,9 @@ class App(ctk_tk.CTk):
         self.grid_rowconfigure(0, minsize=self.height)
         self.screen.grid(column=0, row=0, sticky="nswe")
         self._set_appearance_mode("dark")
-        self.windows_manager.show_start_window()
-        self.windows_manager.start_screen_frame.entry_btn.bind("<Button-1>", self.autentificate)
-        print("aa")
+        self.windows_manager.show_table_window()
+        #self.windows_manager.start_screen_frame.entry_btn.bind("<Button-1>", self.autentificate)
+        #print("aa")
 
     def autentificate(self, event=None):
         login = self.windows_manager.start_screen_frame.db_input.get()

@@ -1,3 +1,4 @@
+import tkinter as tk
 from customtkinter import *
 from admin import *
 from models import *
@@ -70,10 +71,59 @@ class LoginScreenFrame(ScreenFrame):
 
 class TableScreenFrame(ScreenFrame):
     def set_grid_configure(self):
-        ...
+        rows = [0.1, 0.9]
+        columns = [1]
+        for row_ind in range(len(rows)):
+            self.frame.grid_rowconfigure(row_ind, minsize=1, pad=1, weight=100)
+
+        for col_ind in range(len(columns)):
+            self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
+
 
     def show_screen(self):
-        ...
+        # Canvas для прокрутки
+        self.create_button = CTkButton(self.frame, text="Создать", width=self.width)
+        self.create_button.grid(row=0, column=0, sticky="se")
+
+        # self.create1_button = CTkButton(self.frame, text="Создать")
+        # self.create1_button.grid(row=0, column=1, sticky="se")
+
+        self.canvas_frame = CTkFrame(self.frame)
+        self.canvas_frame.grid(column=0, row=1, sticky="nswe")
+        canvas = tk.Canvas(self.canvas_frame, highlightthickness=0)
+        canvas.grid(row=0, column=0, sticky="nsew")
+
+        # Скроллбары
+        v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=canvas.yview)
+        v_scrollbar.grid(row=0, column=1, sticky="ns")
+
+        h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=canvas.xview)
+        h_scrollbar.grid(row=1, column=0, sticky="ew")
+
+        # Привязка скроллбаров к Canvas
+        canvas.configure(yscrollcommand=v_scrollbar.set, xscrollcommand=h_scrollbar.set)
+
+        # Создаем фрейм внутри Canvas
+        scrollable_frame = CTkFrame(canvas)
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
+
+        # Добавляем таблицу в прокручиваемый фрейм
+        table = CTkTable(scrollable_frame, row=25, column=20)
+        table.grid(column=0, row=0)
+
+        # Добавляем кнопку в конкретную ячейку
+        button = CTkButton(table.inside_frame, text="Hi")
+        button.grid(row=1, column=1)
+
+        # Настройка динамического изменения области прокрутки
+        def update_scroll_region(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        scrollable_frame.bind("<Configure>", update_scroll_region)
+
+        # Настройка масштабирования при изменении размеров окна
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
 
 
 
