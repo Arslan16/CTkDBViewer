@@ -119,7 +119,7 @@ class TableScreenFrame(ScreenFrame):
         self.canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
 
         # Добавляем таблицу в прокручиваемый фрейм
-        self.table = CTkTable(scrollable_frame, row=1, column=len(model.__table__.columns))
+        self.table = CTkTable(scrollable_frame, row=1, column=len(model.__table__.columns)+1)
         self.table.grid(column=0, row=0, sticky="nswe")
 
         # Добавляем кнопку в конкретную ячейку
@@ -134,12 +134,39 @@ class TableScreenFrame(ScreenFrame):
         self.feel_table(model)
 
     def feel_table(self, v_in_model):
+        #image = CTkImage()
         headers = [column.name for column in v_in_model.__table__.columns]
+        headers.insert(0, "")
         l_tuples = get_data_from_table(v_in_model) 
         for i in range(len(headers)):
             self.table.insert(row=self.table.rows-1, column=i, value=headers[i])
+        
         for dict_tpl in l_tuples:
-            self.table.add_row([])
+            self.table.add_row([])  # Добавляем новую строку
+            current_row_index = self.table.rows - 1
+            CTkButton(self.table.inside_frame, text="R").grid(column=0, row=current_row_index, sticky="nswe")
+
             for i in range(len(dict_tpl.keys())):
-                self.table.insert(row=self.table.rows-1, column=i, value=list(dict_tpl.values())[i])    
-            
+                self.table.insert(row=current_row_index, column=i+1, value=list(dict_tpl.values())[i])
+
+            # Привязываем обработчики событий для каждой строки
+            row_frame = self.table.inside_frame.winfo_children()[current_row_index]
+            self.bind_row_events(row_frame, current_row_index)
+
+    def bind_row_events(self, row_frame, row_index):
+        # Привязываем события к строке
+        row_frame.bind("<Enter>", lambda e: self.on_hover_row(row_frame))
+        row_frame.bind("<Leave>", lambda e: self.on_leave_row(row_frame))
+        row_frame.bind("<Button-1>", lambda e: self.on_row_click(row_index))
+
+    def on_hover_row(self, row_frame):
+        # Подсвечиваем строку
+        row_frame.configure(bg_color="lightblue")
+
+    def on_leave_row(self, row_frame):
+        # Снимаем подсветку строки
+        row_frame.configure(bg_color="white")
+
+    def on_row_click(self, row_index):
+        # Обрабатываем клик по строке
+        print(f"Row clicked: {row_index}")

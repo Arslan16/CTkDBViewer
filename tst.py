@@ -63,6 +63,12 @@ for i in range(len(headers)):
     table.insert(row=table.rows-1, column=i, value=headers[i])
 for dict_tpl in l_tuples:
     table.add_row([])
+    row = table.select_row(table.rows-1)
+    row.bind("<Enter>", lambda e: row.configure(bg="lightblue"))
+    row.bind("<Leave>", lambda e: row.configure(bg="white"))
+    row.bind("<Button-1>", lambda e, row_data=dict_tpl: self.on_row_click(row_data))
+        def on_row_click(self, row_data):
+        print(f"Clicked on row: {row_data}")
     for i in range(len(dict_tpl.keys())):
         table.insert(row=table.rows-1, column=i, value=list(dict_tpl.values())[i])    
     
