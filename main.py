@@ -1,5 +1,5 @@
 from customtkinter import *
-
+from functools import partial
 
 from frames import *
 from admin import *
@@ -21,12 +21,17 @@ class WindowsManager:
         self.main_frame.clear_frame()
         self.main_frame.set_grid_configure()
         self.main_frame.show_screen()
+        for btn in self.main_frame.l_btns:
+            btn.unbind("<Button-1>")
+            model = dict_models.get(btn.cget("text"))
+            btn.bind("<Button-1>", lambda e, model=model: self.show_table_window(model))
 
-    def show_table_window(self, model):
-        print(f"main.py {model=}")
+    def show_table_window(self, model: Model, event=None):
         self.table_frame.clear_frame()
         self.table_frame.set_grid_configure()
         self.table_frame.show_screen(model)
+        self.table_frame.back_button.unbind("<Button-1>")
+        self.table_frame.back_button.bind("<Button-1>", lambda e: self.show_main_window())
 
 
 class App(ctk_tk.CTk):
@@ -57,9 +62,6 @@ class App(ctk_tk.CTk):
         password = self.windows_manager.start_screen_frame.password_input.get()
         if login == "Arslan" and password == "TestPassword":
             self.windows_manager.show_main_window()
-            for btn in self.windows_manager.main_frame.l_btns:
-                model = dict_models.get(btn.cget("text"))
-                btn.bind("<Button-1>", lambda e, m=model: self.windows_manager.table_frame.show_screen(m))
         else:
             self.show_warning()
             

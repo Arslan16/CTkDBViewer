@@ -32,6 +32,7 @@ class MainScreenFrame(ScreenFrame):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
 
     def show_screen(self):
+        self.l_btns = list()
         header = CTkLabel(self.frame, font=self.BASE_FONT_SETTINGS, text="Список таблиц")
         header.grid(column=0, row=0, sticky="nswe")
         tables_frame = CTkScrollableFrame(self.frame)
@@ -42,6 +43,7 @@ class MainScreenFrame(ScreenFrame):
                       text=list(dict_models.keys())[model_ind])
             btn.grid(row=model_ind, column=0, sticky="we")
             self.l_btns.append(btn)
+
 
 class LoginScreenFrame(ScreenFrame):
     def __init__(self, *args, **kwargs):
@@ -75,7 +77,7 @@ class LoginScreenFrame(ScreenFrame):
 
 class TableScreenFrame(ScreenFrame):
     def set_grid_configure(self):
-        rows = [0.1, 0.9]
+        rows = [0.1, 0.1, 0.1, 0.7]
         columns = [1]
         for row_ind in range(len(rows)):
             self.frame.grid_rowconfigure(row_ind, minsize=self.height*rows[row_ind], pad=1, weight=100)
@@ -87,14 +89,16 @@ class TableScreenFrame(ScreenFrame):
     def show_screen(self, model: Model):
         # Canvas для прокрутки
         self.create_button = CTkButton(self.frame, text="Создать")
-        self.create_button.grid(row=0, column=0, sticky="nswe")
+        self.create_button.grid(row=0, column=0, sticky="nswe", pady=5)
 
         self.back_button = CTkButton(self.frame, text="Назад к списку")
-        self.back_button.grid(row=0, column=0, sticky="nswe")
+        self.back_button.grid(row=1, column=0, sticky="nswe", pady=5)
 
+        self.table_header = CTkLabel(self.frame, text=f"Таблица {model.__tablename__}", font=self.BASE_FONT_SETTINGS)
+        self.table_header.grid(row=2, column=0, sticky="we")
 
         self.canvas_frame = CTkFrame(self.frame, width=self.width, bg_color=BASE_BACKGROUND_COLOR)
-        self.canvas_frame.grid(column=0, row=1, sticky="nswe")
+        self.canvas_frame.grid(column=0, row=3, sticky="nswe")
         self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
         self.canvas.grid(row=0, column=0, sticky="nsew")
         self.canvas_frame.grid_columnconfigure(0, minsize=self.width, weight=100)
@@ -127,17 +131,11 @@ class TableScreenFrame(ScreenFrame):
             self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
         scrollable_frame.bind("<Configure>", update_scroll_region)
-
-        # Настройка масштабирования при изменении размеров окна
-        self.frame.grid_rowconfigure(0, weight=1)
-        self.frame.grid_columnconfigure(0, weight=1)
         self.feel_table(model)
 
     def feel_table(self, v_in_model):
         headers = [column.name for column in v_in_model.__table__.columns]
-        print(v_in_model)
         l_tuples = get_data_from_table(v_in_model) 
-        print(l_tuples)
         for i in range(len(headers)):
             self.table.insert(row=self.table.rows-1, column=i, value=headers[i])
         for dict_tpl in l_tuples:
