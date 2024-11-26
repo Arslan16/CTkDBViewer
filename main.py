@@ -23,10 +23,10 @@ class WindowsManager:
         self.main_frame.clear_frame()
         self.main_frame.set_grid_configure()
         self.main_frame.show_screen()
-        for btn in self.main_frame.l_btns:
-            btn.unbind("<Button-1>")
-            model = dict_models.get(btn.cget("text"))
-            btn.bind("<Button-1>", lambda e, model=model: self.show_table_window(model))
+        for main_btn in self.main_frame.l_btns:
+            main_btn.unbind("<Button-1>")
+            model = dict_models.get(main_btn.cget("text"))
+            main_btn.bind("<Button-1>", lambda e, model=model: self.show_table_window(model))
 
     def show_table_window(self, model: Model, event=None):
         self.table_frame.clear_frame()
@@ -34,8 +34,16 @@ class WindowsManager:
         self.table_frame.show_screen(model)
         self.table_frame.back_button.unbind("<Button-1>")
         self.table_frame.back_button.bind("<Button-1>", lambda e: self.show_main_window())
-        for btn in self.table_frame.l_btns:
-            btn["command"] = lambda e: self.edit_frame.show_screen(btn.tablename, btn.dict_values)
+        for edit_btn in self.table_frame.l_btns:
+            edit_btn.unbind("<Button-1>")
+            model = dict_models.get(edit_btn.tablename)
+            edit_btn.bind("<Button-1>", lambda e, model=model: self.show_edit_window(model, edit_btn.dict_values))
+            
+
+    def show_edit_window(self, model, dict_values):
+        self.edit_frame.clear_frame()
+        self.edit_frame.set_grid_configure()
+        self.edit_frame.show_screen(model, dict_values)
 
 
 class App(ctk_tk.CTk):
@@ -48,7 +56,8 @@ class App(ctk_tk.CTk):
         self.windows_manager = WindowsManager(
             login_frame=LoginScreenFrame(self.width, self.height, self.screen),
             main_frame=MainScreenFrame(self.width, self.height, self.screen),
-            table_frame=TableScreenFrame(self.width, self.height, self.screen)
+            table_frame=TableScreenFrame(self.width, self.height, self.screen),
+            edit_frame=EditScreenFrame(self.width, self.height, self.screen)
         )
         self.columnconfigure(0, minsize=self.width, weight=self.width)
         self.rowconfigure(0, minsize=self.height, weight=self.height)

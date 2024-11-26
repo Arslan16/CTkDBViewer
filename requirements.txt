@@ -1,4 +1,3 @@
 customtkinter
 sqlalchemy
 pyodbc
-pillow

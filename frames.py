@@ -12,7 +12,7 @@ class MCTkButton(CTkButton):
     def __init__(self, tablename, dict_values, *args, **kwargs):
         self.tablename = tablename
         self.dict_values = dict_values
-        super().__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class ScreenFrame:
@@ -27,9 +27,18 @@ class ScreenFrame:
         for widget in self.frame.winfo_children():
             widget.destroy()
 
+    def show_warning(self, v_in_text: str):
+        self.win = CTkToplevel(self)
+        self.win.title("Внимание!")
+        self.win.geometry("300x150")
+        self.win.grid_columnconfigure(0, minsize=300)
+        self.win.rowconfigure(0, minsize=150)
+        self.warning_label = CTkLabel(self.win, font=self.BASE_FONT_SETTINGS, text=v_in_text)
+        self.warning_label.grid(row=0, column=0, sticky='nswe')
+
 
 class MainScreenFrame(ScreenFrame):
-    l_btns = list()
+    l_btns:list[CTkButton] = list()
 
     def set_grid_configure(self):
         rows = [0.2, 0.8]
@@ -152,11 +161,9 @@ class TableScreenFrame(ScreenFrame):
         # Заполнение таблицы данными
         self.feel_table(model.__tablename__, headers, l_tuples)
 
-
     def update_scroll_region(self, event):
         # Обновляем область прокрутки канваса
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
 
     def feel_table(self, tablename, headers, l_tuples):
         for i in range(len(headers)):
@@ -164,18 +171,19 @@ class TableScreenFrame(ScreenFrame):
 
         for tup_index in range(len(l_tuples)):
             current_row_index = tup_index + 1
-            btn = MCTkButton(tablename=tablename, dict_values=l_tuples[tup_index], master=self.table.inside_frame, text="Подробнее").grid(column=0, row=current_row_index)
+            btn = MCTkButton(tablename=tablename, dict_values=l_tuples[tup_index], master=self.table.inside_frame, text="Подробнее")
+            btn.grid(column=0, row=current_row_index)
             self.l_btns.append(btn)
             for i in range(len(l_tuples[tup_index].keys())):
                 self.table.insert(row=current_row_index, column=(i + 1), value=list(l_tuples[tup_index].values())[i])
 
-    def on_row_click(self, row_index):
-        print(f"Row clicked: {row_index}")
-
 
 class EditScreenFrame(ScreenFrame):
+    rows = dict()
+    tablename: str
+
     def set_grid_configure(self):
-        rows = []
+        rows = [0.2, 0.2, 0.6]
         columns = [1]
 
         for row_ind in range(len(rows)):
@@ -184,15 +192,20 @@ class EditScreenFrame(ScreenFrame):
         for col_ind in range(len(columns)):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
     
+    def try_save(self, model: Model):
+        dict_data = {label.text : entry.get for label, entry in self.rows.items()}
+        try: 
+            save_to_table(model, dict_data)
+            self.show_warning("Успешно!")
+        except Exception as e:
+            err = get_error_by_traceback(str(e))
+            self.show_warning(err)
 
-    def try_save(self):
-        ...
-
-    def show_screen(self, tablename: str, dict_values: dict):
-        self.save_btn = CTkButton(self.frame, text="Сохранить")
+    def show_screen(self, model: Model, dict_values: dict):
+        self.save_btn = CTkButton(self.frame, text="Сохранить", command=lambda e: self.try_save(model))
         self.delete_btn = CTkButton(self.frame, text="Удалить")
 
-        self.save_btn.grid(column=0, row=0, sticky="nswe", padx=5, pady=5)
+        self.save_btn.grid(column=0, row=0, sticky="nswe", padx=5)
         self.save_btn.grid(column=0, row=1, sticky="nswe", padx=5)
 
         self.canvas_frame = CTkFrame(self.frame, bg_color=BASE_BACKGROUND_COLOR)
@@ -225,9 +238,12 @@ class EditScreenFrame(ScreenFrame):
         self.scrollable_frame.grid_columnconfigure(1, minsize=self.width/2, weight=1)
 
         counter = 0
-        for key, item in dict_values:
-            CTkLabel(self.scrollable_frame, text=key).grid(row=counter, column=0)
+        for key, item in dict_values.items():
+            label = CTkLabel(self.scrollable_frame, text=key)
+            label.grid(row=counter, column=0, sticky="we")
             entry = CTkEntry(self.scrollable_frame)
-            entry.grid(row=counter, column=1)
+            entry.grid(row=counter, column=1, sticky="we")
             entry.insert(0, str(item))
+            self.rows[label] = entry
+
             counter += 1
