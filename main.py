@@ -7,10 +7,12 @@ from models import *
 
 
 class WindowsManager:
-    def __init__(self, login_frame: LoginScreenFrame, main_frame: MainScreenFrame, table_frame: TableScreenFrame):
+    def __init__(self, login_frame: LoginScreenFrame, main_frame: MainScreenFrame, 
+                 table_frame: TableScreenFrame, edit_frame: EditScreenFrame):
         self.start_screen_frame = login_frame
         self.main_frame = main_frame
-        self.table_frame = table_frame        
+        self.table_frame = table_frame
+        self.edit_frame = edit_frame        
 
     def show_start_window(self):
         self.start_screen_frame.clear_frame()
@@ -32,6 +34,8 @@ class WindowsManager:
         self.table_frame.show_screen(model)
         self.table_frame.back_button.unbind("<Button-1>")
         self.table_frame.back_button.bind("<Button-1>", lambda e: self.show_main_window())
+        for btn in self.table_frame.l_btns:
+            btn["command"] = lambda e: self.edit_frame.show_screen(btn.tablename, btn.dict_values)
 
 
 class App(ctk_tk.CTk):

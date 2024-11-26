@@ -15,3 +15,10 @@ def get_data_from_table(v_in_model) -> list[dict]:
             dict_tpl = {column.name: getattr(tpl, column.name) for column in tpl.__table__.columns}
             l_tuples.append(dict_tpl)
     return l_tuples
+
+
+def save_to_table(Model: Model, dict_data):
+    incoming = Model(**dict_data)
+    with Session(DB_ENGINE) as session:
+        session.merge(incoming)
+        session.commit()
