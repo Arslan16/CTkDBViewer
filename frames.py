@@ -78,100 +78,126 @@ class LoginScreenFrame(ScreenFrame):
 
 class TableScreenFrame(ScreenFrame):
     def set_grid_configure(self):
-        rows = [0.1, 0.1, 0.1, 0.7]
+        rows = [0.1, 0.1, 0.15, 0.4, 0.05]
         columns = [1]
+
         for row_ind in range(len(rows)):
             self.frame.grid_rowconfigure(row_ind, minsize=self.height*rows[row_ind], pad=1, weight=100)
+
 
         for col_ind in range(len(columns)):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
 
 
     def show_screen(self, model: Model):
-        # Canvas для прокрутки
+        # Создание кнопок
+
         self.create_button = CTkButton(self.frame, text="Создать")
         self.create_button.grid(row=0, column=0, sticky="nswe", pady=5)
+
 
         self.back_button = CTkButton(self.frame, text="Назад к списку")
         self.back_button.grid(row=1, column=0, sticky="nswe", pady=5)
 
+
         self.table_header = CTkLabel(self.frame, text=f"Таблица {model.__tablename__}", font=self.BASE_FONT_SETTINGS)
         self.table_header.grid(row=2, column=0, sticky="we")
 
-        self.canvas_frame = CTkFrame(self.frame, width=self.width, bg_color=BASE_BACKGROUND_COLOR)
-        self.canvas_frame.grid(column=0, row=3, sticky="nswe")
-        self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, width=self.width, bg=BASE_BACKGROUND_COLOR)
+
+        self.canvas_frame = CTkFrame(self.frame, bg_color=BASE_BACKGROUND_COLOR)
+        self.canvas_frame.grid(column=0, row=3, sticky="nswe", pady=1)
+
+
+        # Создаем Canvas
+
+        self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, bg=BASE_BACKGROUND_COLOR)
         self.canvas.grid(row=0, column=0, sticky="nsew")
-        self.canvas_frame.grid_columnconfigure(0, minsize=self.width, weight=100)
-        self.canvas_frame.grid_rowconfigure(0, minsize=self.height)
-        self.canvas_frame.grid_rowconfigure(1, minsize=40, weight=100)
+
+
+        # Настройка конфигурации Canvas
+
+        self.canvas_frame.grid_rowconfigure(0, weight=1)
+        self.canvas_frame.grid_columnconfigure(0, weight=1)
+
 
         # Скроллбары
-        self.v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=self.canvas.yview)
+
+        self.v_scrollbar = CTkScrollbar(self.canvas_frame, orientation="vertical", command=self.canvas.yview, width=20)
         self.v_scrollbar.grid(row=0, column=1, sticky="ns")
 
+
         self.h_scrollbar = CTkScrollbar(self.canvas_frame, orientation="horizontal", command=self.canvas.xview)
-        self.h_scrollbar.grid(row=1, column=0, sticky="ew", ipady=10)
+        self.h_scrollbar.grid(row=1, column=0, sticky="ew")
 
         # Привязка скроллбаров к Canvas
         self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set)
 
+
         # Создаем фрейм внутри Canvas
-        scrollable_frame = CTkFrame(self.canvas_frame, height=self.height*0.6)
-        self.canvas.create_window((0, 0), window=scrollable_frame, anchor="center")
+
+        self.scrollable_frame = CTkFrame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # Настройка конфигурации внутри scrollable_frame
+
+        self.scrollable_frame.grid_rowconfigure(0, weight=1)  # Позволяем строке растягиваться
+        self.scrollable_frame.grid_columnconfigure(0, weight=1)  # Позволяем столбцу растягиваться
 
         # Добавляем таблицу в прокручиваемый фрейм
-        self.table = CTkTable(scrollable_frame, row=1, column=len(model.__table__.columns)+1)
-        self.table.grid(column=0, row=0, sticky="nswe", pady=10)
-
-        # Добавляем кнопку в конкретную ячейку
-        # button = CTkButton(table.inside_frame, text="Hi")
-        # button.grid(row=1, column=1)
+        self.table = CTkTable(self.scrollable_frame, row=1, column=len(model.__table__.columns) + 1)
+        self.table.grid(column=0, row=0, sticky="nsew", pady=10)
 
         # Настройка динамического изменения области прокрутки
-        def update_scroll_region(event):
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        self.scrollable_frame.bind("<Configure>", self.update_scroll_region)
 
-        scrollable_frame.bind("<Configure>", update_scroll_region)
+        # Заполнение таблицы данными
         self.feel_table(model)
 
+
+    def update_scroll_region(self, event):
+        # Обновляем область прокрутки канваса
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+
     def feel_table(self, v_in_model):
-        image = tk.PhotoImage("edit.png")
         headers = [column.name for column in v_in_model.__table__.columns]
         headers.insert(0, "R:")
-        l_tuples = get_data_from_table(v_in_model) 
+        l_tuples = get_data_from_table(v_in_model)
+
+
         for i in range(len(headers)):
-            self.table.insert(row=self.table.rows-1, column=i, value=headers[i])
-        #self.table.add_row([])
-        #self.btn = CTkButton(self.table.inside_frame, text="Подробнее")
-        #self.btn.grid(column=0, row=1, sticky="nswe")
-        for dict_tpl in l_tuples[:3]:
+            self.table.insert(row=self.table.rows - 1, column=i, value=headers[i])
+
+
+        for dict_tpl in l_tuples:
             self.table.add_row([])  # Добавляем новую строку
             current_row_index = self.table.rows - 1
             self.btn = CTkButton(self.table.inside_frame, text="Подробнее")
             self.btn.grid(column=0, row=current_row_index, sticky="nswe")
 
+
             for i in range(len(dict_tpl.keys())):
-               self.table.insert(row=current_row_index, column=i+1, value=list(dict_tpl.values())[i])
+                self.table.insert(row=current_row_index, column=i + 1, value=list(dict_tpl.values())[i])
+
 
             # Привязываем обработчики событий для каждой строки
             row_frame = self.table.inside_frame.winfo_children()[current_row_index]
             self.bind_row_events(row_frame, current_row_index)
 
+
     def bind_row_events(self, row_frame, row_index):
-        # Привязываем события к строке
         row_frame.bind("<Enter>", lambda e: self.on_hover_row(row_frame))
         row_frame.bind("<Leave>", lambda e: self.on_leave_row(row_frame))
         row_frame.bind("<Button-1>", lambda e: self.on_row_click(row_index))
 
+
     def on_hover_row(self, row_frame):
-        # Подсвечиваем строку
         row_frame.configure(bg_color="lightblue")
 
+
     def on_leave_row(self, row_frame):
-        # Снимаем подсветку строки
         row_frame.configure(bg_color="white")
 
+
     def on_row_click(self, row_index):
-        # Обрабатываем клик по строке
         print(f"Row clicked: {row_index}")

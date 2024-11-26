@@ -49,7 +49,7 @@ class App(ctk_tk.CTk):
         self.columnconfigure(0, minsize=self.width, weight=self.width)
         self.rowconfigure(0, minsize=self.height, weight=self.height)
         self.geometry(f"{self.width}x{self.height}")
-        self.resizable(False, False)
+        self.resizable(True, True)
         self.grid_columnconfigure(0, minsize=self.width)
         self.grid_rowconfigure(0, minsize=self.height)
         self.screen.grid(column=0, row=0, sticky="nswe")
