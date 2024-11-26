@@ -35,7 +35,6 @@ class WindowsManager:
         self.table_frame.back_button.unbind("<Button-1>")
         self.table_frame.back_button.bind("<Button-1>", lambda e: self.show_main_window())
         for edit_btn in self.table_frame.l_btns:
-            print(edit_btn.dict_values)
             edit_btn.unbind("<Button-1>")
             model = dict_models.get(edit_btn.tablename)
             data = edit_btn.dict_values
@@ -43,7 +42,6 @@ class WindowsManager:
             
 
     def show_edit_window(self, model, dict_values):
-        print(dict_values)
         self.edit_frame.clear_frame()
         self.edit_frame.set_grid_configure()
         self.edit_frame.show_screen(model, dict_values)

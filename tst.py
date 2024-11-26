@@ -14,15 +14,9 @@ root.grid_columnconfigure(0, minsize=width, weight=100)
 root.grid_rowconfigure(0, minsize=height)
 frame.grid(column=0, row=0, sticky="nswe")
 
+label = CTkEntry(root)
+label.insert(0, "AAAAAA")
+label.grid(column=0, row=0)
+print(label.get().encode("utf-8"))
 
-
-# Добавляем таблицу в прокручиваемый фрейм
-table = CTkTable(frame, row=5, column=2)
-table.grid(column=0, row=5, sticky="nswe")
-table.add_row([])
-# table.update()
-for i in range(5):
-    current_row = table.rows - 1
-    CTkButton(table.inside_frame, text="1", command=lambda: print("Hi")).grid(column=0, row=current_row)
-    #
 root.mainloop()
