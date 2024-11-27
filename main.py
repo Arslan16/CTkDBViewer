@@ -37,14 +37,18 @@ class WindowsManager:
         for edit_btn in self.table_frame.l_btns:
             edit_btn.unbind("<Button-1>")
             model = dict_models.get(edit_btn.tablename)
-            data = edit_btn.dict_values
-            edit_btn.bind("<Button-1>", lambda e, model=model, data=data: self.show_edit_window(model, data))
+            dict_data = edit_btn.dict_values
+            dict_columns = edit_btn.dict_columns
+            edit_btn.bind("<Button-1>", lambda e, model=model, 
+                          dict_data=dict_data, dict_columns=dict_columns: self.show_edit_window(model, dict_columns, dict_data))
             
 
-    def show_edit_window(self, model, dict_values):
+    def show_edit_window(self, model, dict_columns, dict_values):
         self.edit_frame.clear_frame()
         self.edit_frame.set_grid_configure()
-        self.edit_frame.show_screen(model, dict_values)
+        self.edit_frame.show_screen(model, dict_columns, dict_values)
+        self.edit_frame.back_button.unbind("<Button-1>")
+        self.edit_frame.back_button.bind("<Button-1>", lambda e: self.show_table_window(self.edit_frame.model))
 
 
 class App(ctk_tk.CTk):

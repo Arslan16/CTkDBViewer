@@ -17,6 +17,7 @@ frame.grid(column=0, row=0, sticky="nswe")
 label = CTkEntry(root)
 label.insert(0, "AAAAAA")
 label.grid(column=0, row=0)
-print(label.get().encode("utf-8"))
+print(TechnicalTask.__table__.columns[0].type)
+
 
 root.mainloop()

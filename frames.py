@@ -9,10 +9,10 @@ from utils import *
 
 
 class MCTkButton(CTkButton):
-    def __init__(self, tablename: str, dict_values: dict, dict_column_types: dict, *args, **kwargs):
+    def __init__(self, tablename: str, dict_values: dict, dict_columns: dict, *args, **kwargs):
         self.tablename = tablename
         self.dict_values = dict_values
-        self.dict_column_types = dict_column_types
+        self.dict_columns = dict_columns
         super().__init__(*args, **kwargs)
 
 
@@ -149,8 +149,8 @@ class TableScreenFrame(ScreenFrame):
         self.scrollable_frame.grid_rowconfigure(0, weight=1)  # Позволяем строке растягиваться
         self.scrollable_frame.grid_columnconfigure(0, weight=1)  # Позволяем столбцу растягиваться
         l_tuples = get_data_from_table(model)
-        dict_column_types = {"R:": None}
-        for column in model.__table__.columns: dict_column_types.update({column.name : column})
+        dict_columns = {"R:": None}
+        for column in model.__table__.columns: dict_columns.update({column.name : column})
         
         # Добавляем таблицу в прокручиваемый фрейм
         self.table = CTkTable(self.scrollable_frame, row=len(l_tuples) + 1, column=len(model.__table__.columns) + 1)
@@ -161,20 +161,20 @@ class TableScreenFrame(ScreenFrame):
         self.scrollable_frame.bind("<Configure>", self.update_scroll_region)
 
         # Заполнение таблицы данными
-        self.feel_table(model.__tablename__, dict_column_types, l_tuples)
+        self.feel_table(model.__tablename__, dict_columns, l_tuples)
 
     def update_scroll_region(self, event):
         # Обновляем область прокрутки канваса
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def feel_table(self, tablename: str, dict_column_types: dict, l_tuples: list[dict]):
-        for i in range(len(dict_column_types.keys())):
-            self.table.insert(row=0, column=i, value=dict_column_types.get(list(dict_column_types.keys())[i]))
+    def feel_table(self, tablename: str, dict_columns: dict, l_tuples: list[dict]):
+        for i in range(len(dict_columns.keys())):
+            self.table.insert(row=0, column=i, value=dict_columns.get(list(dict_columns.keys())[i]))
 
         for tup_index in range(len(l_tuples)):
             current_row_index = tup_index + 1
             btn = MCTkButton(tablename=tablename, dict_values=l_tuples[tup_index], 
-                             dict_column_types=dict_column_types,
+                             dict_columns=dict_columns,
                              master=self.table.inside_frame, text="Подробнее")
             btn.grid(column=0, row=current_row_index)
             self.l_btns.append(btn)
@@ -185,9 +185,11 @@ class TableScreenFrame(ScreenFrame):
 class EditScreenFrame(ScreenFrame):
     rows = dict()
     tablename: str
+    back_button: CTkButton
+    model: Model
 
     def set_grid_configure(self):
-        rows = [0.1, 0.1, 0.8]
+        rows = [0.1, 0.1, 0.95, 0.1]
         columns = [1]
 
         for row_ind in range(len(rows)):
@@ -200,14 +202,14 @@ class EditScreenFrame(ScreenFrame):
         dict_data = {label.cget("text"): entry.get() for label, entry in self.rows.items()}
         try: 
             print(dict_data)
-            save_to_table(model, dict_data)
+            #save_to_table(model, dict_data)
             self.show_warning("Успешно!")
         except Exception as e:
             err = get_error_by_traceback(str(e))
             self.show_warning(err)
 
 
-    def save_file(self, ):
+    def save_file(self, label):
         file = filedialog.askopenfile(
             defaultextension=None,
             filetypes=[("All files", "*.*")],
@@ -215,9 +217,18 @@ class EditScreenFrame(ScreenFrame):
         )
 
         if file:
-            ...
+            file_path = file.name  # Получаем путь к выбранному файлу
+            file_size = os.path.getsize(file_path) # В байтах
+            if file_size > (512 * 1024): # Больше 512 МБ
+                self.show_warning("Размер файла слишком большой!")
+                return
+            entry = CTkEntry(self.scrollable_frame)
+            entry.insert(0, str(file.read()))
+            self.rows[label] = entry
 
-    def show_screen(self, model: Model, dict_values: dict):
+
+    def show_screen(self, model: Model, dict_columns: dict, dict_values: dict):
+        self.model = model
         self.save_btn = CTkButton(self.frame, text="Сохранить", font=self.BASE_FONT_SETTINGS, command=lambda: self.try_save(model))
         self.delete_btn = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Удалить")
 
@@ -254,11 +265,17 @@ class EditScreenFrame(ScreenFrame):
         self.scrollable_frame.grid_columnconfigure(1, minsize=self.width/2, weight=1)
 
         counter = 0
-        for key, item in dict_values.items():
-            label = CTkLabel(self.scrollable_frame, font=self.BASE_FONT_SETTINGS, text=key)
+        for column_name, column_value in dict_values.items():
+            label = CTkLabel(self.scrollable_frame, font=self.BASE_FONT_SETTINGS, text=column_name)
             label.grid(row=counter, column=0, sticky="we")
-            entry = CTkEntry(self.scrollable_frame, font=self.BASE_FONT_SETTINGS)
+            print(dict_columns.get(column_name).type, type(dict_columns.get(column_name).type))
+            entry = CTkEntry(self.scrollable_frame, font=self.BASE_FONT_SETTINGS) if type(dict_columns.get(column_name).type) != VARBINARY else CTkButton(self.scrollable_frame, text=f"Выбрать файл", command=lambda: self.save_file(label))
             entry.grid(row=counter, column=1, sticky="we")
-            entry.insert(0, str(item))
-            self.rows[label] = entry
+            if type(dict_columns.get(column_name).type) != VARBINARY: 
+                entry.insert(0, str(column_value))
+                self.rows[label] = entry
             counter += 1
+        
+        self.back_button = CTkButton(self.frame, text="Назад", font=self.BASE_FONT_SETTINGS)
+        self.back_button.grid(row=3, column=0, sticky="we")
+
