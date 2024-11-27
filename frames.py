@@ -31,11 +31,14 @@ class ScreenFrame:
     def show_warning(self, v_in_text: str):
         self.win = CTkToplevel(self.frame)
         self.win.title("Внимание!")
-        self.win.geometry("300x150")
+        self.win.geometry("300x400")
         self.win.grid_columnconfigure(0, minsize=300)
-        self.win.rowconfigure(0, minsize=150)
-        self.warning_label = CTkLabel(self.win, font=self.BASE_FONT_SETTINGS, text=v_in_text)
+        self.win.rowconfigure(0, minsize=400)
+        self.scroll_warning = CTkScrollableFrame(self.win, width=300, height=400)
+        self.warning_label = CTkTextbox(self.scroll_warning, font=self.BASE_FONT_SETTINGS)
+        self.warning_label.insert(1, v_in_text)
         self.warning_label.grid(row=0, column=0, sticky='nswe')
+        self.scroll_warning.grid(column=0, row=0, ssticky="nswe")
 
 
 class MainScreenFrame(ScreenFrame):
@@ -187,6 +190,7 @@ class EditScreenFrame(ScreenFrame):
     tablename: str
     back_button: CTkButton
     model: Model
+    row_id: int
 
     def set_grid_configure(self):
         rows = [0.1, 0.1, 0.95, 0.1]
@@ -198,10 +202,23 @@ class EditScreenFrame(ScreenFrame):
         for col_ind in range(len(columns)):
             self.frame.grid_columnconfigure(col_ind, minsize=self.width*columns[col_ind], weight=100)
     
+    def try_delete_row(self, model: Model, row_id: int) -> bool:
+        try:
+            with Session(DB_ENGINE) as session:
+                session.execute(delete(model).where(model.id == row_id))
+                session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            err = get_error_by_traceback(str(e))
+            self.show_warning(err)
+            return False
+        
     def try_save(self, model: Model):
         dict_data = {label.cget("text"): entry.get() for label, entry in self.rows.items()}
         try: 
-            #save_to_table(model, dict_data)
+            save = dict_save_functions.get(model)
+            save(dict_data)
             self.show_warning("Успешно!")
         except Exception as e:
             err = get_error_by_traceback(str(e))
@@ -224,7 +241,6 @@ class EditScreenFrame(ScreenFrame):
             entry = CTkEntry(self.scrollable_frame)
             entry.insert(0, str(file.read()))
             self.rows[label] = entry
-
 
     def show_screen(self, model: Model, dict_columns: dict, dict_values: dict):
         self.model = model

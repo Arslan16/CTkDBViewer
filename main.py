@@ -4,7 +4,7 @@ from functools import partial
 from frames import *
 from admin import *
 from models import *
-
+CTk
 
 class WindowsManager:
     def __init__(self, login_frame: LoginScreenFrame, main_frame: MainScreenFrame, 
@@ -42,13 +42,20 @@ class WindowsManager:
             edit_btn.bind("<Button-1>", lambda e, model=model, 
                           dict_data=dict_data, dict_columns=dict_columns: self.show_edit_window(model, dict_columns, dict_data))
             
+    def show_table_after_delete(self, model: Model, row_id: int):
+        successful = self.edit_frame.try_delete_row(model, row_id)
+        if successful: 
+            self.show_table_window(model)
+            self.table_frame.table.delete_row(row_id-1)
 
-    def show_edit_window(self, model, dict_columns, dict_values):
+    def show_edit_window(self, model, dict_columns: dict, dict_values: dict):
         self.edit_frame.clear_frame()
         self.edit_frame.set_grid_configure()
         self.edit_frame.show_screen(model, dict_columns, dict_values)
         self.edit_frame.back_button.unbind("<Button-1>")
         self.edit_frame.back_button.bind("<Button-1>", lambda e: self.show_table_window(self.edit_frame.model))
+        self.edit_frame.delete_btn.unbind("<Button-1>")
+        self.edit_frame.delete_btn.bind("<Button-1>", lambda e, model=model, row_id=dict_values.get("id"): self.show_table_after_delete(model, row_id))
 
 
 class App(ctk_tk.CTk):

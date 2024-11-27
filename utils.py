@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -11,7 +11,7 @@ date_to_str = datetime.strftime
 
 def get_error_by_traceback(v_in_traceback: str) -> str:
     "Возвращает ошибку, ключевую часть из traceback"
-    print(f"{v_in_traceback=}")
+    #print(f"{v_in_traceback=}")
     clear_traceback = ""
     traceback = v_in_traceback.split('\n')
     for line in traceback:
@@ -86,7 +86,7 @@ def save_to_t_orders(dict_data: dict):
     try:
         incoming_order = Order(
             id_customer=int(dict_data.get("id_customer")),
-            accept_date=datetimedict_data.get("accept_date"),
+            accept_date=str_to_date(dict_data.get("accept_date"), "%d.%m.%Y"),
             deadline=dict_data.get("deadline"),
             id_command=int(dict_data.get("id_command")),
             payment=float(dict_data.get("payment")),
@@ -296,3 +296,4 @@ dict_save_functions = {
     TestingQuestion: save_to_t_testing_questions, Answer: save_to_t_answers,
     Interview: save_to_t_interview, File : save_to_t_files, Employee: save_to_t_employees,
 }
+

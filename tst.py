@@ -1,23 +1,22 @@
-import tkinter as tk
-from CTkTable import CTkTable
-from customtkinter import *
+files = [
+    "admin.py",
+    "frames.py",
+    "main.py",
+    "models.py",
+    "utils.py"
+]
 
-from models import *
-from admin import *
-from utils import *
+total_lines = 0
 
-width = 1000
-height = 500
-root = ctk_tk.CTk()
-frame = CTkFrame(root)
-root.grid_columnconfigure(0, minsize=width, weight=100)
-root.grid_rowconfigure(0, minsize=height)
-frame.grid(column=0, row=0, sticky="nswe")
+for file in files:
+    try:
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+            line_count = sum(1 for _ in f)
+            print(f"Файл: {file}, Строк: {line_count}")
+            total_lines += line_count
+    except FileNotFoundError:
+        print(f"Файл {file} не найден.")
+    except Exception as e:
+        print(f"Ошибка при обработке файла {file}: {e}")
 
-label = CTkEntry(root)
-label.insert(0, "AAAAAA")
-label.grid(column=0, row=0)
-print(TechnicalTask.__table__.columns[0].type)
-
-
-root.mainloop()
+print(f"Общее количество строк: {total_lines}")
