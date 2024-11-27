@@ -110,7 +110,7 @@ class TableScreenFrame(ScreenFrame):
 
     def show_screen(self, model: Model):
         # Создание кнопок
-
+        self.l_btns = list() 
         self.create_button = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Создать")
         self.create_button.grid(row=0, column=0, sticky="nswe", pady=5)
 
@@ -201,7 +201,6 @@ class EditScreenFrame(ScreenFrame):
     def try_save(self, model: Model):
         dict_data = {label.cget("text"): entry.get() for label, entry in self.rows.items()}
         try: 
-            print(dict_data)
             #save_to_table(model, dict_data)
             self.show_warning("Успешно!")
         except Exception as e:
@@ -268,7 +267,6 @@ class EditScreenFrame(ScreenFrame):
         for column_name, column_value in dict_values.items():
             label = CTkLabel(self.scrollable_frame, font=self.BASE_FONT_SETTINGS, text=column_name)
             label.grid(row=counter, column=0, sticky="we")
-            print(dict_columns.get(column_name).type, type(dict_columns.get(column_name).type))
             entry = CTkEntry(self.scrollable_frame, font=self.BASE_FONT_SETTINGS) if type(dict_columns.get(column_name).type) != VARBINARY else CTkButton(self.scrollable_frame, text=f"Выбрать файл", command=lambda: self.save_file(label))
             entry.grid(row=counter, column=1, sticky="we")
             if type(dict_columns.get(column_name).type) != VARBINARY: 
