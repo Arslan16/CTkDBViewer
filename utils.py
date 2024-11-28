@@ -25,9 +25,9 @@ def get_error_by_traceback(v_in_traceback: str) -> str:
     return clear_traceback
 
 
-def get_data_from_table(v_in_model) -> list[dict]:
+def get_data_from_table(v_in_model: Model) -> list[dict]:
     l_tuples = list()
-    stmt = select(v_in_model)
+    stmt = select(v_in_model).order_by(v_in_model.id)
     with Session(bind=DB_ENGINE) as session:
         tuples = session.execute(stmt)
         tuples = tuples.scalars().all()
@@ -40,6 +40,7 @@ def get_data_from_table(v_in_model) -> list[dict]:
 def save_to_t_customer(dict_data: dict):
     try:
         incoming_customer = Customer(
+            id = int(dict_data.get("id")),
             law_face = str(dict_data.get("law_face")),
             law_addres = str(dict_data.get("law_addres")),
             director = str(dict_data.get("director")),
@@ -57,6 +58,7 @@ def save_to_t_customer(dict_data: dict):
 def save_to_t_commands(dict_data: dict):
     try:
         incoming_command = Command(
+            id = int(dict_data.get("id")),
             name=str(dict_data.get("name"))
         )
         with Session(DB_ENGINE) as session:
@@ -71,6 +73,7 @@ def save_to_t_commands(dict_data: dict):
 def save_to_t_technical_tasks(dict_data: dict):
     try:
         incoming_technical_task = TechnicalTask(
+            id = int(dict_data.get("id")),
             description=dict_data.get("description")
         )
         with Session(DB_ENGINE) as session:
@@ -85,6 +88,7 @@ def save_to_t_technical_tasks(dict_data: dict):
 def save_to_t_orders(dict_data: dict):
     try:
         incoming_order = Order(
+            id = int(dict_data.get("id")),
             id_customer=int(dict_data.get("id_customer")),
             accept_date=str_to_date(dict_data.get("accept_date"), "%d.%m.%Y"),
             deadline=dict_data.get("deadline"),
@@ -104,14 +108,15 @@ def save_to_t_orders(dict_data: dict):
 def save_to_t_employees(dict_data: dict):
     try:
         incoming_employee = Employee(
+            id = int(dict_data.get("id")),
             surname=dict_data.get("surname"),
             name=dict_data.get("name"),
             last_name=dict_data.get("last_name"),
             position=dict_data.get("position"),
             job=dict_data.get("job"),
-            date_of_employment=dict_data.get("date_of_employment"),
+            date_of_employment=str_to_date(dict_data.get("date_of_employment"), "%d.%m.%Y"),
             grade=dict_data.get("grade"),
-            id_command=dict_data.get("id_command")
+            id_command=int(dict_data.get("id_command"))
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_employee)
@@ -125,6 +130,7 @@ def save_to_t_employees(dict_data: dict):
 def save_to_t_expenses_items(dict_data: dict):
     try:
         incoming_expenses_item = ExpensesItem(
+            id = int(dict_data.get("id")),
             name=dict_data.get("name"),
             description=dict_data.get("description")
         )
@@ -140,9 +146,10 @@ def save_to_t_expenses_items(dict_data: dict):
 def save_to_t_expenses(dict_data: dict):
     try:
         incoming_expense = Expense(
-            date=dict_data.get("date"),
-            cost=dict_data.get("cost"),
-            expense_id=dict_data.get("expense_id"),
+            id = int(dict_data.get("id")),
+            date=str_to_date(dict_data.get("date"), "%d.%m.%Y" ),
+            cost=float(dict_data.get("cost")),
+            expense_id=int(dict_data.get("expense_id")),
             note=dict_data.get("note")
         )
         with Session(DB_ENGINE) as session:
@@ -157,6 +164,7 @@ def save_to_t_expenses(dict_data: dict):
 def save_to_t_profit_items(dict_data: dict):
     try:
         incoming_profit_item = ProfitItem(
+            id = int(dict_data.get("id")),
             name=dict_data.get("name"),
             description=dict_data.get("description")
         )
@@ -172,11 +180,12 @@ def save_to_t_profit_items(dict_data: dict):
 def save_to_t_profits(dict_data: dict):
     try:
         incoming_profit = Profit(
-            date=dict_data.get("date"),
-            cost=dict_data.get("cost"),
-            profit_id=dict_data.get("profit_id"),
+            id = int(dict_data.get("id")),
+            date=str_to_date(dict_data.get("date"), "%d.%m.%Y"),
+            cost=float(dict_data.get("cost")),
+            profit_id=int(dict_data.get("profit_id")),
             note=dict_data.get("note"),
-            order_id=dict_data.get("order_id")
+            order_id=int(dict_data.get("order_id"))
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_profit)
@@ -190,6 +199,7 @@ def save_to_t_profits(dict_data: dict):
 def save_to_t_applicants(dict_data: dict):
     try:
         incoming_applicant = Applicant(
+            id = int(dict_data.get("id")),
             surname=dict_data.get("surname"),
             name=dict_data.get("name"),
             last_name=dict_data.get("last_name"),
@@ -207,10 +217,11 @@ def save_to_t_applicants(dict_data: dict):
 def save_to_t_testing_result(dict_data: dict):
     try:
         incoming_testing_result = TestingResult(
-            applicant_id=dict_data.get("applicant_id"),
-            correct_answers=dict_data.get("correct_answers"),
-            incorrect_answers=dict_data.get("incorrect_answers"),
-            is_passed=dict_data.get("is_passed")
+            id = int(dict_data.get("id")),
+            applicant_id=int(dict_data.get("applicant_id")),
+            correct_answers=int(dict_data.get("correct_answers")),
+            incorrect_answers=int(dict_data.get("incorrect_answers")),
+            is_passed=True if dict_data.get("is_passed") == "True" else False
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_testing_result)
@@ -224,7 +235,8 @@ def save_to_t_testing_result(dict_data: dict):
 def save_to_t_testing_questions(dict_data: dict):
     try:
         incoming_testing_question = TestingQuestion(
-            question_number=dict_data.get("question_number"),
+            id = int(dict_data.get("id")),
+            question_number=int(dict_data.get("question_number")),
             job=dict_data.get("job"),
             question_text=dict_data.get("question_text"),
             question_type=dict_data.get("question_type")
@@ -241,10 +253,11 @@ def save_to_t_testing_questions(dict_data: dict):
 def save_to_t_answers(dict_data: dict):
     try:
         incoming_answer = Answer(
-            question_number=dict_data.get("question_number"),
+            id = int(dict_data.get("id")),
+            question_number=int(dict_data.get("question_number")),
             question_text=dict_data.get("question_text"),
-            is_correct=dict_data.get("is_correct"),
-            question_id=dict_data.get("question_id")
+            is_correct= True if dict_data.get("is_correct") == "True" else False,
+            question_id=int(dict_data.get("question_id"))
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_answer)
@@ -258,10 +271,11 @@ def save_to_t_answers(dict_data: dict):
 def save_to_t_interview(dict_data: dict):
     try:
         incoming_interview = Interview(
-            applicant_id=dict_data.get("applicant_id"),
-            interview_date=dict_data.get("interview_date"),
-            interview_time=dict_data.get("interview_time"),
-            is_passed=dict_data.get("is_passed")
+            id = int(dict_data.get("id")),
+            applicant_id=int(dict_data.get("applicant_id")),
+            interview_date=str_to_date((dict_data.get("interview_date"), "%d.%m.%Y")),
+            interview_time=str_to_date(dict_data.get("interview_time"), "%H:%M"),
+            is_passed= True if dict_data.get("is_passed") == "True" else False
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_interview)
@@ -274,10 +288,11 @@ def save_to_t_interview(dict_data: dict):
 def save_to_t_files(dict_data: dict):
     try:
         incoming_file = File(
+            id = int(dict_data.get("id")),
             file_name=dict_data.get("file_name"),
             b_data=dict_data.get("b_data"),
-            order_id=dict_data.get("order_id"),
-            life_time=dict_data.get("life_time")
+            order_id=int(dict_data.get("order_id")),
+            life_time=str_to_date(dict_data.get("life_time"), "%d.%m.%Y")
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_file)

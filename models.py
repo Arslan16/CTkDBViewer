@@ -6,7 +6,9 @@ Base = declarative_base()
 
 
 class Model:
-    pass
+    __tablename__: str
+    columns: list
+    id: int
 
 
 # Таблица t_commands

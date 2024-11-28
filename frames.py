@@ -35,10 +35,9 @@ class ScreenFrame:
         self.win.grid_columnconfigure(0, minsize=300)
         self.win.rowconfigure(0, minsize=400)
         self.scroll_warning = CTkScrollableFrame(self.win, width=300, height=400)
-        self.warning_label = CTkTextbox(self.scroll_warning, font=self.BASE_FONT_SETTINGS)
-        self.warning_label.insert(1, v_in_text)
+        self.warning_label = CTkLabel(self.scroll_warning, text=v_in_text, width=300, font=self.BASE_FONT_SETTINGS)
         self.warning_label.grid(row=0, column=0, sticky='nswe')
-        self.scroll_warning.grid(column=0, row=0, ssticky="nswe")
+        self.scroll_warning.grid(column=0, row=0, sticky="nswe")
 
 
 class MainScreenFrame(ScreenFrame):
@@ -62,7 +61,7 @@ class MainScreenFrame(ScreenFrame):
         tables_frame.grid(column=0, row=1, sticky="nswe")
         for model_ind in range(len(dict_models.keys())):
             btn = CTkButton(tables_frame, font=self.BASE_FONT_SETTINGS, 
-                      text=list(dict_models.keys())[model_ind])
+                            text=list(dict_models.keys())[model_ind])
             btn.grid(row=model_ind, column=0, sticky="we")
             self.l_btns.append(btn)
 
@@ -114,7 +113,9 @@ class TableScreenFrame(ScreenFrame):
     def show_screen(self, model: Model):
         # Создание кнопок
         self.l_btns = list() 
-        self.create_button = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Создать")
+        dict_columns = {column.name : column for column in model.__table__.columns}
+        
+        self.create_button = MCTkButton(tablename=model.__tablename__, dict_values={key: "" for key, value in dict_columns.items()}, dict_columns=dict_columns, master=self.frame, font=self.BASE_FONT_SETTINGS, text="Создать")
         self.create_button.grid(row=0, column=0, sticky="nswe", pady=5)
 
         self.back_button = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Назад к списку")
@@ -124,7 +125,7 @@ class TableScreenFrame(ScreenFrame):
         self.table_header.grid(row=2, column=0, sticky="we")
 
         self.canvas_frame = CTkFrame(self.frame, bg_color=BASE_BACKGROUND_COLOR)
-        self.canvas_frame.grid(column=0, row=3, sticky="nswe", pady=1)
+        self.canvas_frame.grid(column=0, rowspan=2, row=3, sticky="nswe", pady=1)
 
         # Создаем Canvas
         self.canvas = tk.Canvas(self.canvas_frame, highlightthickness=0, bg=BASE_BACKGROUND_COLOR)
@@ -152,13 +153,11 @@ class TableScreenFrame(ScreenFrame):
         self.scrollable_frame.grid_rowconfigure(0, weight=1)  # Позволяем строке растягиваться
         self.scrollable_frame.grid_columnconfigure(0, weight=1)  # Позволяем столбцу растягиваться
         l_tuples = get_data_from_table(model)
-        dict_columns = {"R:": None}
-        for column in model.__table__.columns: dict_columns.update({column.name : column})
-        
+
         # Добавляем таблицу в прокручиваемый фрейм
         self.table = CTkTable(self.scrollable_frame, row=len(l_tuples) + 1, column=len(model.__table__.columns) + 1)
         self.table.grid_columnconfigure(0, weight=1)
-        self.table.grid(column=0, row=0, sticky="nsew", pady=10)
+        self.table.grid(column=0, row=0, sticky="nsew", pady=1)
 
         # Настройка динамического изменения области прокрутки
         self.scrollable_frame.bind("<Configure>", self.update_scroll_region)
@@ -170,7 +169,10 @@ class TableScreenFrame(ScreenFrame):
         # Обновляем область прокрутки канваса
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def feel_table(self, tablename: str, dict_columns: dict, l_tuples: list[dict]):
+    def feel_table(self, tablename: str, dict_columns_old: dict, l_tuples: list[dict]):
+        dict_columns = {"R": None}
+        dict_columns.update(dict_columns_old)
+        print(dict_columns)
         for i in range(len(dict_columns.keys())):
             self.table.insert(row=0, column=i, value=dict_columns.get(list(dict_columns.keys())[i]))
 
@@ -244,6 +246,7 @@ class EditScreenFrame(ScreenFrame):
 
     def show_screen(self, model: Model, dict_columns: dict, dict_values: dict):
         self.model = model
+        self.rows = dict()
         self.save_btn = CTkButton(self.frame, text="Сохранить", font=self.BASE_FONT_SETTINGS, command=lambda: self.try_save(model))
         self.delete_btn = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Удалить")
 

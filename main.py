@@ -34,13 +34,18 @@ class WindowsManager:
         self.table_frame.show_screen(model)
         self.table_frame.back_button.unbind("<Button-1>")
         self.table_frame.back_button.bind("<Button-1>", lambda e: self.show_main_window())
+        dict_values = self.table_frame.create_button.dict_values
+        dict_columns = self.table_frame.create_button.dict_columns
+        self.table_frame.create_button.unbind("<Button-1>")
+        self.table_frame.create_button.bind("<Button-1>", lambda e, model=model, dict_columns=dict_columns, dict_values=dict_values: self.show_edit_window(model, dict_columns, dict_values))
+       
         for edit_btn in self.table_frame.l_btns:
             edit_btn.unbind("<Button-1>")
             model = dict_models.get(edit_btn.tablename)
-            dict_data = edit_btn.dict_values
+            dict_values = edit_btn.dict_values
             dict_columns = edit_btn.dict_columns
             edit_btn.bind("<Button-1>", lambda e, model=model, 
-                          dict_data=dict_data, dict_columns=dict_columns: self.show_edit_window(model, dict_columns, dict_data))
+                          dict_values=dict_values, dict_columns=dict_columns: self.show_edit_window(model, dict_columns, dict_values))
             
     def show_table_after_delete(self, model: Model, row_id: int):
         successful = self.edit_frame.try_delete_row(model, row_id)
