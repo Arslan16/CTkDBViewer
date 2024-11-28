@@ -172,7 +172,6 @@ class TableScreenFrame(ScreenFrame):
     def feel_table(self, tablename: str, dict_columns_old: dict, l_tuples: list[dict]):
         dict_columns = {"R": None}
         dict_columns.update(dict_columns_old)
-        print(dict_columns)
         for i in range(len(dict_columns.keys())):
             self.table.insert(row=0, column=i, value=dict_columns.get(list(dict_columns.keys())[i]))
 
@@ -221,11 +220,11 @@ class EditScreenFrame(ScreenFrame):
         try: 
             save = dict_save_functions.get(model)
             save(dict_data)
+            print("frames.py:218 try_save() Успешно!")
             self.show_warning("Успешно!")
         except Exception as e:
             err = get_error_by_traceback(str(e))
             self.show_warning(err)
-
 
     def save_file(self, label):
         file = filedialog.askopenfile(

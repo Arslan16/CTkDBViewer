@@ -90,7 +90,7 @@ def save_to_t_orders(dict_data: dict):
         incoming_order = Order(
             id = int(dict_data.get("id")),
             id_customer=int(dict_data.get("id_customer")),
-            accept_date=str_to_date(dict_data.get("accept_date"), "%d.%m.%Y"),
+            accept_date=str_to_date(dict_data.get("accept_date"), "%Y-%m-%d"),
             deadline=dict_data.get("deadline"),
             id_command=int(dict_data.get("id_command")),
             payment=float(dict_data.get("payment")),
@@ -114,7 +114,7 @@ def save_to_t_employees(dict_data: dict):
             last_name=dict_data.get("last_name"),
             position=dict_data.get("position"),
             job=dict_data.get("job"),
-            date_of_employment=str_to_date(dict_data.get("date_of_employment"), "%d.%m.%Y"),
+            date_of_employment=str_to_date(dict_data.get("date_of_employment"), "%Y-%m-%d"),
             grade=dict_data.get("grade"),
             id_command=int(dict_data.get("id_command"))
         )
@@ -147,7 +147,7 @@ def save_to_t_expenses(dict_data: dict):
     try:
         incoming_expense = Expense(
             id = int(dict_data.get("id")),
-            date=str_to_date(dict_data.get("date"), "%d.%m.%Y" ),
+            date=str_to_date(dict_data.get("date"), "%Y-%m-%d" ),
             cost=float(dict_data.get("cost")),
             expense_id=int(dict_data.get("expense_id")),
             note=dict_data.get("note")
@@ -181,7 +181,7 @@ def save_to_t_profits(dict_data: dict):
     try:
         incoming_profit = Profit(
             id = int(dict_data.get("id")),
-            date=str_to_date(dict_data.get("date"), "%d.%m.%Y"),
+            date=str_to_date(dict_data.get("date"), "%Y-%m-%d"),
             cost=float(dict_data.get("cost")),
             profit_id=int(dict_data.get("profit_id")),
             note=dict_data.get("note"),
@@ -273,7 +273,7 @@ def save_to_t_interview(dict_data: dict):
         incoming_interview = Interview(
             id = int(dict_data.get("id")),
             applicant_id=int(dict_data.get("applicant_id")),
-            interview_date=str_to_date((dict_data.get("interview_date"), "%d.%m.%Y")),
+            interview_date=str_to_date(dict_data.get("interview_date"), "%Y-%m-%d"),
             interview_time=str_to_date(dict_data.get("interview_time"), "%H:%M"),
             is_passed= True if dict_data.get("is_passed") == "True" else False
         )
@@ -292,7 +292,7 @@ def save_to_t_files(dict_data: dict):
             file_name=dict_data.get("file_name"),
             b_data=dict_data.get("b_data"),
             order_id=int(dict_data.get("order_id")),
-            life_time=str_to_date(dict_data.get("life_time"), "%d.%m.%Y")
+            life_time=str_to_date(dict_data.get("life_time"), "%Y-%m-%d")
         )
         with Session(DB_ENGINE) as session:
             session.merge(incoming_file)
