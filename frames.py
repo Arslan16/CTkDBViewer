@@ -220,7 +220,6 @@ class EditScreenFrame(ScreenFrame):
         try: 
             save = dict_save_functions.get(model)
             save(dict_data)
-            print("frames.py:218 try_save() Успешно!")
             self.show_warning("Успешно!")
         except Exception as e:
             err = get_error_by_traceback(str(e))
@@ -246,6 +245,7 @@ class EditScreenFrame(ScreenFrame):
     def show_screen(self, model: Model, dict_columns: dict, dict_values: dict):
         self.model = model
         self.rows = dict()
+        self.row_id = dict_values.get("id")
         self.save_btn = CTkButton(self.frame, text="Сохранить", font=self.BASE_FONT_SETTINGS, command=lambda: self.try_save(model))
         self.delete_btn = CTkButton(self.frame, font=self.BASE_FONT_SETTINGS, text="Удалить")
 
@@ -282,11 +282,12 @@ class EditScreenFrame(ScreenFrame):
         self.scrollable_frame.grid_columnconfigure(1, minsize=self.width/2, weight=1)
 
         counter = 0
+        
         for column_name, column_value in dict_values.items():
             label = CTkLabel(self.scrollable_frame, font=self.BASE_FONT_SETTINGS, text=column_name)
-            label.grid(row=counter, column=0, sticky="we")
+            if column_name != "id": label.grid(row=counter, column=0, sticky="we") 
             entry = CTkEntry(self.scrollable_frame, font=self.BASE_FONT_SETTINGS) if type(dict_columns.get(column_name).type) != VARBINARY else CTkButton(self.scrollable_frame, text=f"Выбрать файл", command=lambda: self.save_file(label))
-            entry.grid(row=counter, column=1, sticky="we")
+            if column_name != "id": entry.grid(row=counter, column=1, sticky="we")
             if type(dict_columns.get(column_name).type) != VARBINARY: 
                 entry.insert(0, str(column_value))
                 self.rows[label] = entry
